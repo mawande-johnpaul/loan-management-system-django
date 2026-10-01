@@ -4,6 +4,11 @@ from loginApp.models import CustomerSignUp
 import uuid
 # Create your models here.
 
+class LoanStatus(models.TextChoices):
+    PENDING = "pending", "Pending"
+    APPROVED = "approved", "Approved"
+    REJECTED = "rejected", "Rejected"
+
 
 class loanCategory(models.Model):
     loan_name = models.CharField(max_length=250)

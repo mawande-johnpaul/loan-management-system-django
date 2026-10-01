@@ -135,3 +135,8 @@ MEDIA_URL = '/media/'
 LOGIN_URL = '/account/login/'
 
 django_heroku.settings(locals())
+
+# Use plain static storage when running tests (no collectstatic needed)
+import sys
+if "test" in sys.argv:
+    STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"

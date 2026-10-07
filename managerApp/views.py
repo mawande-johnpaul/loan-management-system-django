@@ -18,8 +18,6 @@ from loanApp import selectors, services
 
 from django.db.models import Sum
 # Create your views here.
-# Create your views here.
-
 
 def superuser_login_view(request):
     if request.user.is_authenticated:

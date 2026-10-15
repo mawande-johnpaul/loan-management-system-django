@@ -14,6 +14,8 @@ class loanCategory(models.Model):
     loan_name = models.CharField(max_length=250)
     creation_date = models.DateField(auto_now_add=True)
     updated_date = models.DateTimeField(auto_now=True)
+    interest_rate = models.DecimalField(
+        max_digits=5, decimal_places=4, default=Decimal("0.12"))
 
     def __str__(self):
         return self.loan_name

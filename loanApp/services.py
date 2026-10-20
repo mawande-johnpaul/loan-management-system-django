@@ -1,4 +1,5 @@
 # loanApp/services.py
+from abc import ABC, abstractmethod                      # ADDED
 from datetime import date
 from decimal import Decimal
 
@@ -9,7 +10,7 @@ from .models import CustomerLoan, LoanStatus, loanRequest
 DEFAULT_RATE = Decimal("0.12")
 
 
-def calculate_payable(amount, years, rate=DEFAULT_RATE):
+def calculate_payable(amount, years, rate=DEFAULT_RATE):   # kept as is (now unused)
     amount = Decimal(str(amount))
     years = Decimal(str(years))
     return amount * (1 + rate * years)
@@ -17,6 +18,34 @@ def calculate_payable(amount, years, rate=DEFAULT_RATE):
 
 def _to_decimal(value):
     return Decimal(str(value))
+
+
+# ---------- ADDED: interest policies ----------
+class InterestPolicy(ABC):
+    @abstractmethod
+    def payable(self, amount, years): ...
+
+
+class SimpleInterest(InterestPolicy):
+    def __init__(self, rate):
+        self.rate = Decimal(str(rate))                     # str() so floats don't add noise
+
+    def payable(self, amount, years):
+        amount = Decimal(str(amount))
+        return amount + amount * self.rate * int(years)
+
+
+class CompoundInterest(InterestPolicy):
+    def __init__(self, rate):
+        self.rate = Decimal(str(rate))
+
+    def payable(self, amount, years):
+        return Decimal(str(amount)) * (1 + self.rate) ** int(years)
+
+
+def policy_for(loan_request):
+    # Extend here without touching approve_loan.
+    return SimpleInterest(DEFAULT_RATE)                    
 
 
 @transaction.atomic
@@ -31,7 +60,7 @@ def approve_loan(loan, today=None):
         defaults={"total_loan": 0, "payable_loan": 0},
     )
     account.total_loan = _to_decimal(account.total_loan) + _to_decimal(locked.amount)
-    account.payable_loan = _to_decimal(account.payable_loan) + calculate_payable(
+    account.payable_loan = _to_decimal(account.payable_loan) + policy_for(locked).payable(   # CHANGED
         locked.amount, locked.year
     )
     account.save()

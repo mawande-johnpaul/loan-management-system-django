@@ -3,6 +3,12 @@ from django.db.models import Count, Q, Sum
 
 from .models import CustomerLoan, LoanStatus, loanRequest, loanTransaction
 
+from enum import Enum
+
+class Totals(str, Enum):
+    TOTAL_LOAN = "total_loan"
+    TOTAL_PAYABLE = "total_payable"
+    TOTAL_PAID = "total_paid"
 
 def get_loan_stats(customer=None):
     requests = loanRequest.objects.all()
@@ -23,7 +29,7 @@ def get_loan_stats(customer=None):
     paid = payments.aggregate(total_paid=Sum("payment"))
     return {
         **counts,
-        "total_loan": sums["total_loan"] or 0,
-        "total_payable": sums["total_payable"] or 0,
-        "total_paid": paid["total_paid"] or 0,
+        "total_loan": sums.get(Totals.TOTAL_LOAN) or 0,
+        "total_payable": sums.get(Totals.TOTAL_PAYABLE) or 0,
+        "total_paid": paid.get(Totals.TOTAL_PAID) or 0,
     }

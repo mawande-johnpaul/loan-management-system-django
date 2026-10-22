@@ -55,48 +55,24 @@ def authenticate_superuser(request, form):
 
 
 def superuser_login_view(request):
-    """Handle administrator login requests."""
     if request.user.is_authenticated:
         return redirect(Endpoints.HOME)
 
     if request.method != "POST":
-        return render(
-            request,
-            Templates.LOGIN,
-            {
-                "form": AdminLoginForm(),
-                "user": "Admin Login",
-            },
-        )
+        return render(request, Templates.LOGIN, {"form": AdminLoginForm(), "user": "Admin Login"})
 
     form = AdminLoginForm(data=request.POST)
 
-    user, error = authenticate_superuser(
-        request,
-        form,
-    )
+    user, error = authenticate_superuser(request, form)
 
     if user is not None:
         login(request, user)
         return redirect(Endpoints.DASHBOARD)
 
     if error is not None:
-        return render(
-            request,
-            Templates.LOGIN,
-            {
-                "form": form,
-                "error": error,
-            },
-        )
+        return render(request, Templates.LOGIN, {"form": form, "error": error})
 
-    return render(
-        request,
-        Templates.LOGIN,
-        {
-            "form": form,
-            "user": "Admin Login",
-        },
+    return render(request,Templates.LOGIN,{"form": form, "user": "Admin Login"},
     )
 
 

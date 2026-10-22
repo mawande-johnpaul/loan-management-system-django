@@ -132,7 +132,9 @@ def approved_request(request, id):
         CustomerLoan.objects.filter(
             customer=approved_customer).update(total_loan=int(PreviousAmount)+int(loan_obj.amount))
         CustomerLoan.objects.filter(
-            customer=approved_customer).update(payable_loan=int(PreviousPayable)+int(loan_obj.amount)+int(loan_obj.amount)*0.12*int(year))
+            customer=approved_customer).update(
+                payable_loan=int(PreviousPayable)+int(loan_obj.amount)+int(loan_obj.amount)*0.12*int(year)
+            )
 
     else:
 

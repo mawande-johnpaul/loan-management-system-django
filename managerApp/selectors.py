@@ -12,28 +12,14 @@ from .constants import Status
 
 
 def get_objects(model, **filters):
-    """
-    Retrieve model instances using optional filters.
-
-    Examples:
-        get_objects(CustomerSignUp)
-        get_objects(loanRequest, status=Status.PENDING)
-    """
     return model.objects.filter(**filters)
 
 
 def get_object_count(model, **filters):
-    """Count matching model instances."""
     return get_objects(model, **filters).count()
 
 
 def get_total(model, field):
-    """
-    Calculate the sum of a model field.
-
-    Preserves Django's original aggregation behavior,
-    returning None when there are no matching values.
-    """
     return model.objects.aggregate(
         total=Sum(field)
     )["total"]

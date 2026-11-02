@@ -2,6 +2,7 @@
 from datetime import date
 
 from django.contrib.auth.models import User
+from django.db import transaction
 
 from loanApp.models import CustomerLoan, loanRequest
 from loginApp.models import CustomerSignUp
@@ -21,7 +22,7 @@ def calculate_payable(amount, years):
         amount * Loan.ANNUAL_INTEREST_RATE * years
     )
 
-
+@transaction.atomic
 def update_customer_balance(customer, amount, payable):
     """
     Update the balance of an existing customer.

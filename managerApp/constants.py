@@ -1,4 +1,3 @@
-
 class Status:
     PENDING = "pending"
     APPROVED = "approved"

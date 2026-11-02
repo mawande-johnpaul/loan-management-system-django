@@ -103,7 +103,6 @@ def add_category(request):
         {"form": form},
     )
 
-
 @staff_member_required(login_url=Endpoints.LOGIN)
 def total_users(request):
     """Display registered customers."""

@@ -1,4 +1,3 @@
-
 from datetime import date
 
 from django.contrib.auth.models import User
@@ -8,8 +7,16 @@ from loanApp.models import CustomerLoan, loanRequest
 from loginApp.models import CustomerSignUp
 
 from .constants import Loan, Status
+from .contracts import (
+    must_be_pending,
+    must_have_valid_terms,
+    must_return_non_negative,
+)
+from .selectors import invalidate_dashboard_statistics
 
 
+@must_have_valid_terms
+@must_return_non_negative
 def calculate_payable(amount, years):
     """
     Calculate principal and simple annual interest
@@ -21,6 +28,7 @@ def calculate_payable(amount, years):
     return amount + (
         amount * Loan.ANNUAL_INTEREST_RATE * years
     )
+
 
 @transaction.atomic
 def update_customer_balance(customer, amount, payable):
@@ -55,6 +63,7 @@ def create_customer_balance(customer, amount, payable):
     )
 
 
+@must_be_pending
 def approve_loan_request(request_id):
     """
     Process approval using the original business rules.
@@ -98,10 +107,12 @@ def approve_loan_request(request_id):
     ).update(
         status=Status.APPROVED
     )
+    invalidate_dashboard_statistics()
 
     return loan
 
 
+@must_be_pending
 def reject_loan_request(request_id):
     """
     Process rejection using the original business rules.
@@ -120,6 +131,7 @@ def reject_loan_request(request_id):
     ).update(
         status=Status.REJECTED
     )
+    invalidate_dashboard_statistics()
 
     return loan
 
@@ -140,3 +152,4 @@ def remove_customer(customer_id):
         pk=customer_id
     )
     user.delete()
+    invalidate_dashboard_statistics()

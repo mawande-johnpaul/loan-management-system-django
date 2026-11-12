@@ -25,3 +25,8 @@ class Templates:
 
 class Loan:
     ANNUAL_INTEREST_RATE = 0.12
+
+
+class Cache:
+    DASHBOARD_KEY = "managerApp:dashboard-statistics"
+    DASHBOARD_TTL = 300  # seconds; signals clear it sooner, this is only a safety net

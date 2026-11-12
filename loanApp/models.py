@@ -27,6 +27,9 @@ class loanRequest(models.Model):
     amount = models.PositiveIntegerField(default=0)
     year = models.PositiveIntegerField(default=1)
 
+    class Meta:
+        indexes = [models.Index(fields=['status'], name='loanrequest_status_idx')]
+
     def __str__(self):
         return self.customer.user.username
 

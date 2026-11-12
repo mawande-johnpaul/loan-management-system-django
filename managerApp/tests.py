@@ -289,18 +289,20 @@ class ApproveRejectKnownBugTests(TestCase):
         self.customer = make_customer("jane")
         self.req = make_request(self.customer, amount=1000, year=2)
 
-    def test_approving_twice_credits_the_loan_twice(self):
+    def test_approving_twice_credits_the_loan_once(self):
+        # UPDATED after refactor: the old test pinned the bug (2000). The contract now refuses it.
         url = reverse(APPROVE, args=[self.req.id])
         self.client.post(url)
         self.client.post(url)
         account = CustomerLoan.objects.get(customer=self.customer)
-        self.assertEqual(account.total_loan, 2000)          # refactor: 1000
+        self.assertEqual(account.total_loan, 1000)
 
-    def test_approved_request_can_be_rejected_afterwards(self):
+    def test_approved_request_cannot_be_rejected_afterwards(self):
+        # UPDATED after refactor: the old test pinned the bug ("rejected"). Decided requests are final.
         self.client.post(reverse(APPROVE, args=[self.req.id]))
         self.client.post(reverse(REJECT, args=[self.req.id]))
         self.req.refresh_from_db()
-        self.assertEqual(self.req.status, "rejected")       # refactor: stays "approved"
+        self.assertEqual(self.req.status, "approved")
         self.assertEqual(CustomerLoan.objects.get(customer=self.customer).total_loan, 1000)
 
     def test_get_request_changes_state(self):

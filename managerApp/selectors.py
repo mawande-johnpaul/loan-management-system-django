@@ -1,5 +1,6 @@
 from django.core.cache import cache
 from django.db.models import Count, Q, Sum
+from django.db.models.signals import post_delete, post_save
 
 from loanApp.models import CustomerLoan, loanRequest, loanTransaction
 from loginApp.models import CustomerSignUp
@@ -54,5 +55,16 @@ def get_dashboard_statistics():
     )
 
 
-def invalidate_dashboard_statistics():
+def invalidate_dashboard_statistics(**_):
     cache.delete(Cache.DASHBOARD_KEY)
+
+
+# Clear the cached dashboard whenever a model it summarises is saved or deleted.
+# Connected at import time, so it does not depend on apps.py or INSTALLED_APPS.
+for _model in (CustomerSignUp, loanRequest, CustomerLoan, loanTransaction):
+    for _signal in (post_save, post_delete):
+        _signal.connect(
+            invalidate_dashboard_statistics,
+            sender=_model,
+            dispatch_uid="managerApp-dashboard-cache",
+        )
